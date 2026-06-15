@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createServiceRoleSupabase } from '@/lib/supabase-server';
+import { createClient } from '@supabase/supabase-js';
 
 export async function POST(request: Request) {
   try {
@@ -24,7 +24,9 @@ export async function POST(request: Request) {
     const isUniversalCode = trimmedCode === 'gts3396815';
     let needBindInvite = false;
 
-    const supabase = createServiceRoleSupabase();
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
 
     // 非通用邀请码走数据库验证
     if (!isUniversalCode) {
@@ -43,31 +45,38 @@ export async function POST(request: Request) {
       needBindInvite = true;
     }
 
-    // 手机号转 E.164 格式（Supabase Admin API 要求）
+    // 手机号转 E.164 格式
     const e164Phone = phone.trim().startsWith('+') ? phone.trim() : `+86${phone.trim()}`;
 
     // 生成虚拟邮箱，走 email 注册通道（绕过 phone provider 未启用问题）
     const virtualEmail = `${e164Phone.replace('+', '')}@phone.local`;
 
-    // 创建用户（同时走 email + phone 双通道）
-    const { data, error: createError } = await supabase.auth.admin.createUser({
-      email: virtualEmail,
-      email_confirm: true,
-      password,
-      phone: e164Phone,
-      user_metadata: { phone: e164Phone },
+    // 直接调用 Supabase Auth Admin REST API（绕过 SDK 路径拼装问题）
+    const res = await fetch(`${supabaseUrl}/auth/v1/admin/users`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${serviceRoleKey}`,
+        'apikey': serviceRoleKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: virtualEmail,
+        password,
+        email_confirm: true,
+        phone: e164Phone,
+        user_metadata: { phone: e164Phone },
+      }),
     });
 
-    if (createError) {
-      if (createError.message.toLowerCase().includes('already')) {
+    const result = await res.json();
+
+    if (!res.ok) {
+      const errMsg = result.msg || result.message || JSON.stringify(result);
+      if (errMsg.toLowerCase().includes('already')) {
         return NextResponse.json({ error: '该手机号已注册' }, { status: 409 });
       }
-      console.error('Create user error:', createError);
-      return NextResponse.json({ error: `注册失败: ${createError.message}` }, { status: 500 });
-    }
-
-    if (!data?.user) {
-      return NextResponse.json({ error: '注册失败，请稍后重试' }, { status: 500 });
+      console.error('Create user error:', result);
+      return NextResponse.json({ error: `注册失败: ${errMsg}` }, { status: 500 });
     }
 
     // 仅非通用邀请码需要绑定
@@ -81,7 +90,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      user_id: data.user.id,
+      user_id: result.id,
     });
   } catch (error) {
     console.error('Register error:', error);
