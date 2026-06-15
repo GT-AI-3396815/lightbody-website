@@ -5,12 +5,8 @@ import type { NextRequest } from 'next/server';
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 登录页、绑定手机号页和认证 API 允许匿名访问
-  if (
-    pathname.startsWith('/auth/login') ||
-    pathname.startsWith('/auth/bind-phone') ||
-    pathname.startsWith('/api/auth/')
-  ) {
+  // 认证 API 允许匿名访问
+  if (pathname.startsWith('/api/auth/')) {
     return NextResponse.next();
   }
 
@@ -20,9 +16,7 @@ export async function middleware(request: NextRequest) {
   // 未登录，重定向到登录页
   if (!session) {
     const loginUrl = new URL('/auth/login', request.url);
-    if (pathname !== '/') {
-      loginUrl.searchParams.set('redirect', pathname);
-    }
+    loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
@@ -43,13 +37,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * 匹配所有路径，排除：
-     * - _next/static (静态文件)
-     * - _next/image (图片优化)
-     * - favicon.ico (网站图标)
-     */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: ['/history/:path*', '/admin/:path*'],
 };
