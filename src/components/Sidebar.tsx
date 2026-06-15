@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { EXTERNAL_LINKS } from '@/lib/data';
 
@@ -20,9 +20,8 @@ const NAV_ITEMS = [
 export default function Sidebar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-
-  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-  const currentSection = searchParams?.get('section') || 'worldview';
+  const searchParams = useSearchParams();
+  const currentSection = searchParams.get('section') || 'worldview';
 
   return (
     <>
@@ -74,7 +73,6 @@ export default function Sidebar() {
             );
           })}
 
-          {/* Auth 链接 */}
           <div className="pt-4 mt-4 border-t border-border-subtle space-y-1">
             <Link href="/history" className="sidebar-link text-xs" onClick={() => setOpen(false)}>
               <span className="text-text-muted w-5 text-center">⌘</span>
@@ -83,10 +81,6 @@ export default function Sidebar() {
             <Link href="/admin" className="sidebar-link text-xs" onClick={() => setOpen(false)}>
               <span className="text-text-muted w-5 text-center">⚙</span>
               <span>管理后台</span>
-            </Link>
-            <Link href="/auth/login" className="sidebar-link text-xs" onClick={() => setOpen(false)}>
-              <span className="text-text-muted w-5 text-center">⌂</span>
-              <span>登录 / 注册</span>
             </Link>
           </div>
         </nav>

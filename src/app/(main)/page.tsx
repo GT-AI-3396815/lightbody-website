@@ -1,14 +1,15 @@
 'use client';
 
 import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import WorldviewSection from '@/components/WorldviewSection';
 import DictionarySection from '@/components/DictionarySection';
 import GenerateSection from '@/components/GenerateSection';
 import PredictionSection from '@/components/PredictionSection';
 
 function HomeContent() {
-  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-  const section = searchParams?.get('section') || 'worldview';
+  const searchParams = useSearchParams();
+  const section = searchParams.get('section') || 'worldview';
 
   const renderSection = () => {
     switch (section) {
