@@ -7,8 +7,10 @@ import { EXTERNAL_LINKS } from '@/lib/data';
 
 const NAV_ITEMS = [
   { id: 'worldview', label: '宇宙观', icon: '◈', href: '/?section=worldview' },
+  { id: 'dictionary', label: '术语词典', icon: '◉', href: '/?section=dictionary' },
   { id: 'generate', label: '内容生成', icon: '✧', external: EXTERNAL_LINKS.generate },
   { id: 'ip', label: 'IP打造', icon: '★', external: EXTERNAL_LINKS.ip },
+  { id: 'prediction', label: '未来预测', icon: '☼', href: '/?section=prediction' },
   { id: 'talent', label: '天赋测试', icon: '♆', external: EXTERNAL_LINKS.talent },
   { id: 'decode', label: '光体解码', icon: '☽', external: EXTERNAL_LINKS.decode },
   { id: 'sound', label: '光体音流', icon: '♫', external: EXTERNAL_LINKS.sound },
@@ -71,16 +73,6 @@ export default function Sidebar() {
             );
           })}
 
-          <div className="pt-4 mt-4 border-t border-border-subtle space-y-1">
-            <Link href="/history" className="sidebar-link text-xs" onClick={() => setOpen(false)}>
-              <span className="text-text-muted w-5 text-center">⌘</span>
-              <span>生成历史</span>
-            </Link>
-            <Link href="/admin" className="sidebar-link text-xs" onClick={() => setOpen(false)}>
-              <span className="text-text-muted w-5 text-center">⚙</span>
-              <span>管理后台</span>
-            </Link>
-          </div>
         </nav>
 
         <div className="absolute bottom-16 left-0 right-0 p-4 border-t border-border-subtle">
