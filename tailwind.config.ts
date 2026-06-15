@@ -17,6 +17,14 @@ const config: Config = {
           900: "#0f0f1e",
           950: "#0a0a14",
         },
+        'text': {
+          primary: "#e0d6c8",
+          secondary: "#a89880",
+          muted: "#6b5e4a",
+        },
+        border: {
+          subtle: "#2a2a3a",
+        },
       },
       fontFamily: {
         serif: ["Georgia", "Noto Serif SC", "serif"],
