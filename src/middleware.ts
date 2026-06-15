@@ -5,9 +5,10 @@ import type { NextRequest } from 'next/server';
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 登录页和认证 API 允许匿名访问
+  // 登录页、绑定手机号页和认证 API 允许匿名访问
   if (
     pathname.startsWith('/auth/login') ||
+    pathname.startsWith('/auth/bind-phone') ||
     pathname.startsWith('/api/auth/')
   ) {
     return NextResponse.next();

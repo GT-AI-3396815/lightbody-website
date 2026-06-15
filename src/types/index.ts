@@ -9,6 +9,8 @@ export interface Profile {
   avatar_url: string | null;
   role: 'user' | 'admin';
   invite_code_used: string | null;
+  wechat_openid: string | null;
+  wechat_unionid: string | null;
   created_at: string;
   updated_at: string;
 }
