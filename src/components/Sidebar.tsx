@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { EXTERNAL_LINKS } from '@/lib/data';
 
@@ -19,7 +19,6 @@ const NAV_ITEMS = [
 
 export default function Sidebar() {
   const [open, setOpen] = useState(false);
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentSection = searchParams.get('section') || 'worldview';
 

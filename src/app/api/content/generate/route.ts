@@ -56,6 +56,7 @@ export async function POST(request: Request) {
 
     if (insertError) {
       console.error('Save error:', insertError);
+      return NextResponse.json({ success: true, result, warning: '内容已生成但保存到数据库失败' });
     }
 
     return NextResponse.json({ success: true, result });

@@ -17,14 +17,3 @@ declare global {
 }
 
 export {};
-
-export function getWechatConfig() {
-  const appId = process.env.WECHAT_APP_ID;
-  const appSecret = process.env.WECHAT_APP_SECRET;
-
-  if (!appId || !appSecret) {
-    throw new Error('缺少微信配置：请设置 WECHAT_APP_ID 和 WECHAT_APP_SECRET 环境变量');
-  }
-
-  return { appId, appSecret };
-}
