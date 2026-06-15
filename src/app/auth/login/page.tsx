@@ -72,6 +72,10 @@ function LoginForm() {
       setError('密码至少6位');
       return;
     }
+    if (regPassword !== regPasswordConfirm) {
+      setError('两次密码输入不一致');
+      return;
+    }
 
     setLoading(true);
     try {
