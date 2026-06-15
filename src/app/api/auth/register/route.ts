@@ -49,33 +49,53 @@ export async function POST(request: Request) {
     const e164Phone = phone.trim().startsWith('+') ? phone.trim() : `+86${phone.trim()}`;
 
     // 生成虚拟邮箱，走 email 注册通道（绕过 phone provider 未启用问题）
-    const virtualEmail = `${e164Phone.replace('+', '')}@phone.local`;
+    const virtualEmail = `${e164Phone.replace('+', '')}@phone.example.com`;
+
+    const apiUrl = `${supabaseUrl}/auth/v1/admin/users`;
 
     // 直接调用 Supabase Auth Admin REST API（绕过 SDK 路径拼装问题）
-    const res = await fetch(`${supabaseUrl}/auth/v1/admin/users`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${serviceRoleKey}`,
-        'apikey': serviceRoleKey,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email: virtualEmail,
-        password,
-        email_confirm: true,
-        phone: e164Phone,
-        user_metadata: { phone: e164Phone },
-      }),
-    });
+    let res: Response;
+    try {
+      res = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${serviceRoleKey}`,
+          'apikey': serviceRoleKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: virtualEmail,
+          password,
+          email_confirm: true,
+          phone: e164Phone,
+          user_metadata: { phone: e164Phone },
+        }),
+      });
+    } catch (fetchError: any) {
+      console.error('Fetch to Supabase failed:', fetchError.message || fetchError);
+      console.error('Request URL:', apiUrl);
+      return NextResponse.json({
+        error: `注册服务异常: 无法连接到认证服务 (${fetchError.message || 'network error'})`,
+      }, { status: 502 });
+    }
 
-    const result = await res.json();
+    let result: any;
+    try {
+      result = await res.json();
+    } catch {
+      const text = await res.text().catch(() => '');
+      console.error('Supabase non-JSON response:', res.status, text);
+      return NextResponse.json({
+        error: `注册失败: HTTP ${res.status} — ${text.slice(0, 200)}`,
+      }, { status: 502 });
+    }
 
     if (!res.ok) {
       const errMsg = result.msg || result.message || JSON.stringify(result);
       if (errMsg.toLowerCase().includes('already')) {
         return NextResponse.json({ error: '该手机号已注册' }, { status: 409 });
       }
-      console.error('Create user error:', result);
+      console.error('Supabase createUser failed:', res.status, JSON.stringify(result));
       return NextResponse.json({ error: `注册失败: ${errMsg}` }, { status: 500 });
     }
 
@@ -92,8 +112,11 @@ export async function POST(request: Request) {
       success: true,
       user_id: result.id,
     });
-  } catch (error) {
-    console.error('Register error:', error);
-    return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Register unexpected error:', error?.message || error);
+    console.error('Stack:', error?.stack);
+    return NextResponse.json({
+      error: `服务器内部错误: ${error?.message || 'unknown'}`,
+    }, { status: 500 });
   }
 }
