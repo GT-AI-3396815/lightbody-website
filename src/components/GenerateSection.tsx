@@ -3,6 +3,32 @@
 import { useState } from 'react';
 import { EXTERNAL_LINKS } from '@/lib/data';
 
+const DAILY_LIMIT = 10;
+const QUOTA_KEY = 'gtwm_daily_quota';
+
+function getToday(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function readQuota(): { date: string; count: number } {
+  if (typeof window === 'undefined') return { date: getToday(), count: 0 };
+  try {
+    const raw = localStorage.getItem(QUOTA_KEY);
+    if (!raw) return { date: getToday(), count: 0 };
+    const data = JSON.parse(raw);
+    if (data.date !== getToday()) return { date: getToday(), count: 0 };
+    return data;
+  } catch {
+    return { date: getToday(), count: 0 };
+  }
+}
+
+function saveQuota(date: string, count: number) {
+  try {
+    localStorage.setItem(QUOTA_KEY, JSON.stringify({ date, count }));
+  } catch { /* quota storage unavailable */ }
+}
+
 export default function GenerateSection() {
   const [prompt, setPrompt] = useState('');
   const [category, setCategory] = useState('通用');
@@ -10,9 +36,13 @@ export default function GenerateSection() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
+  const [quota, setQuota] = useState(() => readQuota());
+
+  const remaining = DAILY_LIMIT - quota.count;
+  const exhausted = remaining <= 0;
 
   const handleGenerate = async () => {
-    if (!prompt.trim()) return;
+    if (!prompt.trim() || exhausted) return;
     setLoading(true);
     setError('');
     setSaved(false);
@@ -53,6 +83,13 @@ export default function GenerateSection() {
       const content = dsData.choices?.[0]?.message?.content || '生成结果为空';
       setResult(content);
       setSaved(true);
+
+      // 成功后增加计数
+      const today = getToday();
+      const newCount = quota.date === today ? quota.count + 1 : 1;
+      const newQuota = { date: today, count: newCount };
+      setQuota(newQuota);
+      saveQuota(today, newCount);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : '生成失败';
       setError(message);
@@ -94,11 +131,17 @@ export default function GenerateSection() {
           </div>
           <button
             onClick={handleGenerate}
-            disabled={loading || !prompt.trim()}
+            disabled={loading || !prompt.trim() || exhausted}
             className="btn-primary w-full disabled:opacity-50"
           >
-            {loading ? '生成中...' : '✧ 生成内容'}
+            {exhausted ? '今日提问次数已用完' : loading ? '生成中...' : '✧ 生成内容'}
           </button>
+
+          <p className="text-xs text-text-muted text-center mt-2">
+            {exhausted
+              ? '每日限额 10 次，将在午夜重置'
+              : `今日剩余 ${remaining} / ${DAILY_LIMIT} 次`}
+          </p>
         </div>
 
         {error && (
