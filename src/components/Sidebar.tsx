@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { EXTERNAL_LINKS } from '@/lib/data';
 
 const NAV_ITEMS = [
@@ -29,16 +30,40 @@ export default function Sidebar() {
       </button>
       {open && <div className="md:hidden fixed inset-0 bg-black bg-opacity-60 z-30" onClick={() => setOpen(false)} />}
 
-      <aside className={`sidebar ${open ? 'open' : ''} ${!open ? 'hidden md:block' : ''} fixed md:sticky top-0 left-0 h-screen w-64 bg-surface-900 border-r border-border-subtle overflow-y-auto z-40`}>
-        <div className="p-5 border-b border-border-subtle">
-          <Link href="/" className="block no-underline" onClick={() => setOpen(false)}>
-            <h1 className="text-gold-400 animate-glow text-center">光体文明</h1>
+      <aside className={`sidebar ${open ? 'open' : ''} ${!open ? 'hidden md:block' : ''} fixed md:sticky top-0 left-0 h-screen w-64 overflow-y-auto z-40`}>
+        {/* Logo 区域 */}
+        <div className="relative p-6 border-b border-border-subtle">
+          {/* 背景光晕 */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-gold-500 opacity-[0.04] blur-3xl" />
+          </div>
+
+          <Link href="/" className="flex flex-col items-center no-underline group" onClick={() => setOpen(false)}>
+            <div className="relative mb-3 transition-transform duration-500 group-hover:scale-105">
+              <div className="absolute inset-0 rounded-full bg-gold-500 opacity-20 blur-xl group-hover:opacity-30 transition-opacity duration-500" />
+              <Image
+                src="/logo.svg"
+                alt="光体文明 Logo"
+                width={72}
+                height={72}
+                className="relative drop-shadow-[0_0_12px_rgba(212,160,23,0.4)]"
+                priority
+              />
+            </div>
+            <h1 className="text-xl text-center animate-glow-breath">
+              光体文明
+            </h1>
           </Link>
-          <p className="text-text-muted text-xs text-center mt-1">INTELLIGENT AGENT · 智能体</p>
-          <p className="text-gold-500 text-xs text-center mt-1 tracking-wider">点亮自己，照亮他人</p>
+          <p className="text-text-muted text-xs text-center mt-2 tracking-widest uppercase">
+            Lightbody Agent
+          </p>
+          <p className="text-gold-400 text-xs text-center mt-1 tracking-wider opacity-70">
+            点亮自己，照亮他人
+          </p>
         </div>
 
-        <nav className="p-3 space-y-1">
+        {/* 导航 */}
+        <nav className="p-3 space-y-0.5">
           {NAV_ITEMS.map((item) => {
             const isActive = !item.external && currentSection === item.id;
 
@@ -49,12 +74,12 @@ export default function Sidebar() {
                   href={item.external}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="sidebar-link"
+                  className="sidebar-link group"
                   onClick={() => setOpen(false)}
                 >
-                  <span className="text-gold-500 w-5 text-center">{item.icon}</span>
+                  <span className="text-gold-400 w-5 text-center text-base">{item.icon}</span>
                   <span>{item.label}</span>
-                  <span className="ml-auto text-text-muted text-xs">↗</span>
+                  <span className="ml-auto text-text-muted text-xs opacity-0 group-hover:opacity-100 transition-opacity">↗</span>
                 </a>
               );
             }
@@ -66,22 +91,23 @@ export default function Sidebar() {
                 className={`sidebar-link ${isActive ? 'active' : ''}`}
                 onClick={() => setOpen(false)}
               >
-                <span className="text-gold-500 w-5 text-center">{item.icon}</span>
+                <span className="text-gold-400 w-5 text-center text-base">{item.icon}</span>
                 <span>{item.label}</span>
               </Link>
             );
           })}
-
         </nav>
 
+        {/* 底部状态指示器 */}
         <div className="absolute bottom-16 left-0 right-0 p-4 border-t border-border-subtle">
           <div className="flex items-center gap-3">
-            <div className="w-3 h-3 rounded-full bg-cyan-500 relative">
-              <span className="absolute inset-0 rounded-full bg-cyan-500 animate-ping opacity-75"></span>
+            <div className="relative">
+              <div className="w-3 h-3 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(77,208,225,0.6)]" />
+              <span className="absolute inset-0 rounded-full bg-cyan-400 animate-ping opacity-40" />
             </div>
             <div>
               <p className="text-text-muted text-xs">光频指示器</p>
-              <p className="text-cyan-400 text-xs">光体师 · 在线</p>
+              <p className="text-cyan-300 text-xs font-medium">光体师 · 在线</p>
             </div>
           </div>
         </div>

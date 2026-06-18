@@ -4,11 +4,17 @@ import './globals.css';
 export const metadata: Metadata = {
   title: '光体文明 · 智能体',
   description: '以光为介质，以意识为结构——光体文明的宇宙模型、光体定义、升维理论与叙事主线',
+  icons: {
+    icon: '/logo.svg',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="zh-CN">
+      <head>
+        <meta name="theme-color" content="#06060f" />
+      </head>
       <body>{children}</body>
     </html>
   );

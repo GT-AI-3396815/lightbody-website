@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <defs>
+    <radialGradient id="lg1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#d4a017"/>
+      <stop offset="60%" stop-color="#b8860b"/>
+      <stop offset="100%" stop-color="#7a5508"/>
+    </radialGradient>
+    <radialGradient id="lg2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#d4a017" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#b8860b" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Outer glow ring -->
+  <circle cx="60" cy="60" r="56" fill="none" stroke="url(#lg2)" stroke-width="2" opacity="0.4"/>
+  <circle cx="60" cy="60" r="50" fill="none" stroke="url(#lg1)" stroke-width="1" opacity="0.3"/>
+  <!-- Light beams -->
+  <g opacity="0.15" stroke="#d4a017" stroke-width="1.5">
+    <line x1="60" y1="10" x2="60" y2="30"/>
+    <line x1="60" y1="90" x2="60" y2="110"/>
+    <line x1="10" y1="60" x2="30" y2="60"/>
+    <line x1="90" y1="60" x2="110" y2="60"/>
+    <line x1="25" y1="25" x2="39" y2="39"/>
+    <line x1="81" y1="81" x2="95" y2="95"/>
+    <line x1="95" y1="25" x2="81" y2="39"/>
+    <line x1="39" y1="81" x2="25" y2="95"/>
+  </g>
+  <!-- Inner geometric light body -->
+  <circle cx="60" cy="60" r="28" fill="none" stroke="url(#lg1)" stroke-width="1.5" filter="url(#glow)"/>
+  <circle cx="60" cy="60" r="16" fill="url(#lg1)" opacity="0.9"/>
+  <!-- Center spark -->
+  <circle cx="60" cy="60" r="4" fill="#fff" opacity="0.9"/>
+  <!-- Orbiting particle -->
+  <circle cx="60" cy="38" r="3" fill="#d4a017" opacity="0.8"/>
+</svg>
