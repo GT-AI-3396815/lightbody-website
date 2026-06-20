@@ -303,9 +303,12 @@ tr:hover td{background:rgba(123,104,238,0.05)}
 window._JS_START_TIME = Date.now();
 window._JS_ERRORS = [];
 window.onerror = function(msg, url, line, col, err) {
-  window._JS_ERRORS.push({msg:String(msg),line:line,col:col,time:Date.now()});
+  var msgStr = String(msg);
+  // 过滤原生 ResizeObserver 无害警告
+  if (msgStr.indexOf('ResizeObserver') !== -1) return true;
+  window._JS_ERRORS.push({msg:msgStr,line:line,col:col,time:Date.now()});
   var el = document.getElementById('js-status');
-  if (el) el.textContent = 'JS ERR:' + line + ':' + msg;
+  if (el) el.textContent = 'JS ERR:' + line + ':' + msgStr;
   return false;
 };
 console.log('JS_SCRIPT_START', new Date().toISOString());
