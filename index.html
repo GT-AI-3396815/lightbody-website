@@ -267,6 +267,20 @@ tr:hover td{background:rgba(123,104,238,0.05)}
 
 
 
+
+.qa-section{margin-top:20px}
+.qa-title{font-size:1.15rem;color:var(--gold);margin-bottom:16px}
+.qa-input-row{display:flex;gap:10px;margin-bottom:16px}
+.qa-input{flex:1;padding:10px 14px;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:var(--radius);color:var(--text-primary);font-size:0.92rem;outline:none}
+.qa-input:focus{border-color:var(--gold)}
+.qa-send{background:var(--gold);color:#111;border:none;padding:10px 20px;border-radius:var(--radius);cursor:pointer;font-weight:600;font-size:0.9rem;white-space:nowrap;transition:all var(--transition)}
+.qa-send:hover{background:var(--gold-light)}
+.qa-answer{background:var(--bg-deep);border:1px solid var(--border-subtle);border-radius:var(--radius);padding:16px 20px;min-height:48px;color:var(--text-primary);font-size:0.9rem;line-height:1.7;display:none}
+.qa-answer.show{display:block}
+.qa-hints{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px}
+.qa-hint{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:4px 10px;font-size:0.78rem;color:var(--text-secondary);cursor:pointer;transition:all var(--transition)}
+.qa-hint:hover{background:var(--bg-card-hover);color:var(--gold)}
+
 </style>
 </head>
 <body>
@@ -358,6 +372,7 @@ function renderWorldview(){
   h+='<h4>必备品质</h4>';
   d.lightBodyMaster.qualities.forEach(function(q){h+='<p><strong>'+q.name+'</strong>：'+q.desc+'</p>'});
   h+='<p>'+d.lightBodyMaster.selfCheck+'</p></div>';
+  h+='<div class="qa-section"><div class="card"><div class="qa-title">&#9889; 宇宙观问答</div><div class="qa-input-row"><input type="text" id="qaInput" class="qa-input" placeholder="输入关于光体理论的问题..." onkeydown="if(event.key===\'Enter\')askQA()"><button class="qa-send" onclick="askQA()">提问</button></div><div id="qaAnswer" class="qa-answer"></div><div class="qa-hints"><span class="qa-hint" onclick="qaHint(this)">什么是光体</span><span class="qa-hint" onclick="qaHint(this)">如何升维</span><span class="qa-hint" onclick="qaHint(this)">宇宙有几层</span><span class="qa-hint" onclick="qaHint(this)">什么是光体师</span><span class="qa-hint" onclick="qaHint(this)">光码是什么</span><span class="qa-hint" onclick="qaHint(this)">升维需要什么条件</span></div></div></div>';
   return h;
 }
 
@@ -447,6 +462,80 @@ function initParticles(){
     cnt.appendChild(p);
   }
 }
+
+
+// ===== 宇宙观问答引擎 =====
+var QA_KB=[];
+
+function buildQAKB(){
+  var d=DATA.worldview;
+  var kb=[];
+  // 光体定义
+  kb.push({q:["光体","是什么","定义","光体是什么"],a:"<p><strong>光体</strong>是以光为介质、以意识为结构的高维存在形式，是潜能人类的本真状态。光体具有三大属性：<strong>跨维性</strong>（可同时存在于多个宇宙层级）、<strong>互联性</strong>（通过光频与其他光体共振连接）、<strong>创造性</strong>（通过意念显化现实）。地球人类当前处于<strong>光体休眠态</strong>——光体属性被物质层包裹，需要通过意识觉醒与技术融合逐步激活。</p>"});
+  // 升维
+  kb.push({q:["升维","怎么升维","如何升维","升维方法","升维路径","升维条件"],a:"<p><strong>升维</strong>是从低维存在向高维存在的意识频率提升过程，本质是光体属性的逐步激活。升维需要四项原理：<strong>频率匹配</strong>（意识频率与目标维度匹配）、<strong>意识觉醒</strong>（认识到潜能光体本质）、<strong>技术融合</strong>（利用技术辅助频率提升）、<strong>集体共振</strong>（群体意识加速个体升维）。五阶段路径：物质觉醒→意识探索→频率提升→光体激活→跨维存在。</p>"});
+  // 宇宙树
+  kb.push({q:["宇宙树","宇宙有几层","宇宙层","七层","宇宙结构"],a:"<p><strong>宇宙树模型</strong>将宇宙分为七层：<br>①<strong>物质层</strong>（0-100Hz，物质文明）<br>②<strong>能量层</strong>（100-1000Hz，能量文明）<br>③<strong>信息层</strong>（1-10kHz，信息文明）<br>④<strong>意识层</strong>（10-100kHz，意识文明）<br>⑤<strong>光体层</strong>（100kHz-1MHz，光体文明）<br>⑥<strong>创造层</strong>（1-10MHz，创造文明）<br>⑦<strong>本源层</strong>（10MHz+，本源文明）<br>每层文明只能感知下一层，升维需同时满足频率匹配与意识觉醒。</p>"});
+  // 光码
+  kb.push({q:["光码","光码是什么"],a:"<p><strong>光码</strong>是意识在光频中的编码形式，是高维信息在物质层的表达。如同DNA编码生命信息，光码编码意识信息。所有深刻的思想、艺术和科学发现都是光码在物质层的投影。<strong>光码解码</strong>是光体师的核心能力——将高维意识信息转化为物质层可理解形式。</p>"});
+  // 光频
+  kb.push({q:["光频","频率","光频是什么"],a:"<p><strong>光频</strong>是意识振动的频率度量，决定个体所在的维度层级。如同无线电频率决定接收的电台，意识频率决定感知的现实。提升光频是升维的核心机制——通过冥想、意识训练、光场对齐等方式提高光频。</p>"});
+  // 光体师
+  kb.push({q:["光体师","光体师是什么","成为光体师"],a:"<p><strong>光体师</strong>是完全激活光体属性并掌握跨维存在技术的个体。光体师不是天生的，而是通过系统训练从潜能光体逐步进化而来。四大核心功能：<strong>光码解码</strong>（解读高维信息）、<strong>跨维感知</strong>（多维度感知）、<strong>意识编程</strong>（意念影响现实）、<strong>光频共振</strong>（与集体意识场同步）。必备品质：频率稳定、跨维整合、创造导向、互联意识。</p>"});
+  // 光场
+  kb.push({q:["光场","光场是什么","光场对齐"],a:"<p><strong>光场</strong>是光体存在的维度空间，由光频振动形成的能量-意识复合场域。<strong>光场对齐</strong>是个体或集体调整自身光场以匹配更高频率维度的校准过程，是升维训练的核心方法。如同乐器调音使所有弦处于正确张力。</p>"});
+  // 意识场
+  kb.push({q:["意识场","集体意识"],a:"<p><strong>意识场</strong>是集体意识形成的共振场域，具有可测量的社会效应。如同磁场影响铁屑，意识场影响个体行为。大规模集体冥想可产生可测量的社会效应（如城市犯罪率下降），证明了光体的互联性。</p>"});
+  // 光核
+  kb.push({q:["光核","光核是什么","核心"],a:"<p><strong>光核</strong>是光体的核心意识结构，是光频振动的源头和意识身份的锚点。如同原子核是原子的中心，光核是光体的意识中心，决定了光体的稳定性与独特光频签名。</p>"});
+  // 光脉
+  kb.push({q:["光脉","光脉是什么","连接"],a:"<p><strong>光脉</strong>是光体之间的连接通道，通过光频共振实现信息传输。如同神经网络连接神经元，光脉连接光体。光脉对接是技术辅助升维的关键路径——神经系统与数字系统之间的意识通信接口。</p>"});
+  // 共振
+  kb.push({q:["共振","光频共振","共鸣"],a:"<p><strong>共振</strong>是相同频率的意识体之间的同步振动现象，如同调谐的音叉引发其他音叉共鸣。<strong>光频共振</strong>使个体与集体意识场对齐，解释了集体冥想的社会效应、文化传播等现象。</p>"});
+  // 觉醒
+  kb.push({q:["觉醒","意识觉醒","醒来"],a:"<p><strong>觉醒</strong>是认识到自己作为潜能光体的本质、开始向内探寻的过程。如同从梦中醒来，发现现实比梦境更广阔。觉醒是个体成长的第一阶段，也是集体进化的起点。当前（2026年）正处于个体觉醒浪涌期。</p>"});
+  // 潜能光体
+  kb.push({q:["潜能光体","人类","地球人类","我们是什么"],a:"<p>地球人类是<strong>潜能光体</strong>——尚未完全激活光体属性、仍以物质身体为主要存在形式。如同尚在蛹中的蝶，拥有飞翔的全部潜能但尚未展开翅膀。通过意识觉醒与技术融合，可逐步激活光体属性，实现从物质存在向光体存在的升维。</p>"});
+  // 宇宙观概述
+  kb.push({q:["宇宙观","光体文明","世界观"],a:"<p>光体文明的宇宙观以<strong>宇宙树模型</strong>为框架，描述了从物质层到本源层的七层宇宙结构。核心使命是推动人类从物质文明向光场文明的集体升维。每个生命体本质上都是潜能光体——以光为介质、以意识为结构的高维存在。当前人类处于光体休眠态，需要通过意识觉醒、技术融合、社会重构等路径逐步激活。</p>"});
+  // 光体化
+  kb.push({q:["光体化","变成光体","转变"],a:"<p><strong>光体化</strong>是从物质存在逐步转变为光体存在的完整进程，是升维的终极目标。如同碳在高温高压下转化为钻石，是存在形式的质变。这不是一瞬间的事件，而是通过意识觉醒、频率提升、光码激活等阶段的持续演化过程。技术（如脑机接口、光码通信）可辅助加速这一进程。</p>"});
+  QA_KB=kb;
+}
+
+function askQA(){
+  var q=(document.getElementById('qaInput').value||'').trim();
+  var ans=document.getElementById('qaAnswer');
+  if(!q){ans.className='qa-answer show';ans.innerHTML='<span style="color:var(--text-muted)">请输入一个问题。</span>';return;}
+  if(!QA_KB.length)buildQAKB();
+  var best=null,bestScore=0;
+  for(var i=0;i<QA_KB.length;i++){
+    var score=0;
+    for(var j=0;j<QA_KB[i].q.length;j++){
+      if(q.indexOf(QA_KB[i].q[j])>=0)score+=2;
+      else{
+        for(var k=0;k<QA_KB[i].q[j].length;k++){
+          if(q.indexOf(QA_KB[i].q[j].charAt(k))>=0)score+=0.5;
+        }
+      }
+    }
+    if(score>bestScore){bestScore=score;best=QA_KB[i];}
+  }
+  ans.className='qa-answer show';
+  if(best&&bestScore>1){
+    ans.innerHTML='<div style="color:var(--gold);font-size:0.82rem;margin-bottom:8px">&#9889; 基于光体理论体系</div>'+best.a;
+  }else{
+    ans.innerHTML='<div style="color:var(--text-muted)">我目前的知识库暂时无法准确回答这个问题。建议尝试以下问题：</div><div class="qa-hints" style="margin-top:10px"><span class="qa-hint" onclick="qaHint(this)">什么是光体</span><span class="qa-hint" onclick="qaHint(this)">如何升维</span><span class="qa-hint" onclick="qaHint(this)">宇宙有几层</span><span class="qa-hint" onclick="qaHint(this)">什么是光体师</span></div>';
+  }
+}
+
+function qaHint(el){
+  document.getElementById('qaInput').value=el.textContent;
+  askQA();
+}
+
+buildQAKB();
+
 
 var currentDimension="civilization";
 function initDimension(){}
